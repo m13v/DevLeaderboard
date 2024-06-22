@@ -37,5 +37,6 @@ def main():
     ref = "11cc5a970cb50acefd194cc8c82369192a4dc409"
     get_commit_details(owner, repo, ref, github_token)
 
+
 if __name__ == "__main__":
     main()
