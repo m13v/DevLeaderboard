@@ -34,6 +34,7 @@ def get_contributors(repo_url, token):
 
     return contributors
 
+
 if __name__ == "__main__":
     repo_url = sys.argv[1]
     token = sys.argv[2]
