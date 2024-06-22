@@ -32,6 +32,7 @@ async function getCommits() {
     return commits;
 }
 
+
 getCommits().then(commits => {
     console.log('Commit SHAs:', commits);
 });
