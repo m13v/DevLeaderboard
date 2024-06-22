@@ -43,4 +43,5 @@ function main() {
     getCommitDetails(owner, repo, ref, githubToken);
 }
 
+
 main();
