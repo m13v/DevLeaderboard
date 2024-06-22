@@ -58,5 +58,6 @@ def main():
     token = sys.argv[2]
     get_contributions_last_30_days(username, token)
 
+
 if __name__ == "__main__":
     main()
