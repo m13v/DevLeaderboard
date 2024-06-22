@@ -100,3 +100,9 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# node
+node_modules/
+
+# api docs
+ai21studio-devhub/

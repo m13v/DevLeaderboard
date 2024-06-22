@@ -34,7 +34,7 @@ def main():
     # Replace with your values
     owner = "matthew-heartful"
     repo = "DevLeaderboard"
-    ref = "ce4dd10b89676e7cf448b807b3e25e236edaf292"
+    ref = "11cc5a970cb50acefd194cc8c82369192a4dc409"
     get_commit_details(owner, repo, ref, github_token)
 
 if __name__ == "__main__":
