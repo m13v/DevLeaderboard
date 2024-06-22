@@ -6,6 +6,7 @@ async function summarizeCommitDetails(commitDetails_str) {
     let textToSummarize = `Summarize github commit details: ${commitDetails_str}`;
     // console.log(commitDetails_str);
 
+    
     try {
         const response = await axios.post('https://api.ai21.com/studio/v1/summarize', {
             source: textToSummarize,
