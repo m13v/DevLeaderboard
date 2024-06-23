@@ -26,4 +26,16 @@ async function insertData(name, contributors, stars, commits) {
     }
 }
 
-module.exports = { insertData };
+async function printRepoData() {
+    const { data, error } = await supabase
+        .from('repos')
+        .select('*');
+
+    if (error) {
+        console.error('Error fetching data:', error);
+    } else {
+        console.log('Repository Data:', data);
+    }
+}
+
+module.exports = { insertData, printRepoData };

@@ -23,7 +23,7 @@ async function insertData() {
 // Export the function for use in other scripts
 module.exports = { insertData };
 
-// Run the function if the script is executed directly from the terminal
-if (require.main === module) {
-    insertData().catch(console.error);
-}
+// // Run the function if the script is executed directly from the terminal
+// if (require.main === module) {
+//     insertData().catch(console.error);
+// }

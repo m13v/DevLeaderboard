@@ -20,30 +20,30 @@ async function insertUserData(userData) {
 
 module.exports = { insertUserData }; // Export the function
 
-async function main() {
-    const userData = {
-        rank: 1,
-        ranking_value: 100,
-        avatar: 'https://example.com/avatar.png',
-        followers: 150,
-        github_link: 'https://github.com/example',
-        last_request: new Date().toISOString(),
-        total_repo: 10,
-        total_commits: 500,
-        joined: '2022-01-01T00:00:00Z',
-        location: 'San Francisco, CA',
-        email: 'user@example.com',
-        "30day_commits": 30,
-        "30day_issues": 5,
-        "30day_prs": 10,
-        "30day_reviews": 2,
-        stars_of_projects_committed_to: 200,
-        non_empty_non_comment_additions: 1000,
-        symbol_additions_excluding_comments: 500,
-        average_complexity_of_commits: 3
-    };
+// async function main() {
+//     const userData = {
+//         rank: 1,
+//         ranking_value: 100,
+//         avatar: 'https://example.com/avatar.png',
+//         followers: 150,
+//         github_link: 'https://github.com/example',
+//         last_request: new Date().toISOString(),
+//         total_repo: 10,
+//         total_commits: 500,
+//         joined: '2022-01-01T00:00:00Z',
+//         location: 'San Francisco, CA',
+//         email: 'user@example.com',
+//         "30day_commits": 30,
+//         "30day_issues": 5,
+//         "30day_prs": 10,
+//         "30day_reviews": 2,
+//         stars_of_projects_committed_to: 200,
+//         non_empty_non_comment_additions: 1000,
+//         symbol_additions_excluding_comments: 500,
+//         average_complexity_of_commits: 3
+//     };
 
-    await insertUserData(userData);
-}
+//     await insertUserData(userData);
+// }
 
-main();
+// main();

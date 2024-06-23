@@ -233,4 +233,4 @@ function main() {
     summarizeCommitDetails(JSON.stringify(commitDetails.files, null, 2));
 }
 
-main();
+// main();

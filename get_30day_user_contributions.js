@@ -3,7 +3,7 @@ const axios = require('axios');
 const { getTotalCommits } = require('./get_ttl_cmt');
 const { insertUserData } = require('./db_users_data');
 
-async function getContributionsLast30Days(username) {
+async function query(username) {
     const token = process.env.GITHUB_TOKEN;
     const query = `
     query($userName: String!, $fromDate: DateTime!, $registrationDate: DateTime!) {
@@ -93,26 +93,21 @@ async function getContributionsLast30Days(username) {
     }
 }
 
-async function main() {
-    const args = process.argv.slice(2);
-    if (args.length !== 1) {
-        console.log("Usage: node get_30day_user_contributions.js <username>");
-        process.exit(1);
-    }
-    const [username] = args;
+async function getContributionsLast30Days(username) {
+    console.log(`getContributionsLast30Days(${username})`);
 
     // Get total commits since registration
     const totalCommits = await getTotalCommits(username);
     if (totalCommits === null) {
         console.error("Failed to fetch total commits.");
-        process.exit(1);
+        return null; // Return null to indicate failure
     }
 
     // Get contributions for the last 30 days
-    const contributions = await getContributionsLast30Days(username);
+    const contributions = await query(username);
     if (contributions === null) {
         console.error("Failed to fetch contributions for the last 30 days.");
-        process.exit(1);
+        return null; // Return null to indicate failure
     }
 
     // Prepare user data for insertion
@@ -139,7 +134,24 @@ async function main() {
     };
 
     // Insert user data into the database
-    await insertUserData(userData);
+    try {
+        await insertUserData(userData);
+    } catch (error) {
+        console.error('Error inserting/updating data:', error);
+        return null; // Return null to indicate failure
+    }
+
+    return contributions; // Return contributions for further use
 }
 
-main();
+if (require.main === module) {
+    const args = process.argv.slice(2);
+    if (args.length !== 1) {
+        console.log("Usage: node get_30day_user_contributions.js <username>");
+        process.exit(1);
+    }
+    const [username] = args;
+    getContributionsLast30Days(username);
+}
+
+module.exports = { getContributionsLast30Days };

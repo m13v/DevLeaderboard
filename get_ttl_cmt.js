@@ -15,13 +15,20 @@ async function getUserRegistrationDate(username) {
         'Content-Type': 'application/json'
     };
     const variables = { userName: username };
+    console.log(`Fetching registration date for username: ${username}`); // Add this log
     try {
         const response = await axios.post('https://api.github.com/graphql', {
             query,
             variables
         }, { headers });
+        console.log('GitHub API response:', response.data); // Add this log
         if (response.status === 200) {
-            return new Date(response.data.data.user.createdAt);
+            if (response.data.data.user) {
+                return new Date(response.data.data.user.createdAt);
+            } else {
+                console.error('User data is null or undefined:', response.data.data.user);
+                return null;
+            }
         } else {
             console.error(`Failed to fetch registration date: ${response.status} ${response.statusText}`);
             console.error(response.data);
@@ -53,13 +60,20 @@ async function getTotalCommitsInRange(username, fromDate, toDate) {
         fromDate: fromDate.toISOString(),
         toDate: toDate.toISOString()
     };
+    console.log(`Fetching total commits for username: ${username} from ${fromDate.toISOString()} to ${toDate.toISOString()}`); // Add this log
     try {
         const response = await axios.post('https://api.github.com/graphql', {
             query,
             variables
         }, { headers });
+        console.log('GitHub API response:', response.data); // Add this log
         if (response.status === 200) {
-            return response.data.data.user.contributionsCollection.totalCommitContributions;
+            if (response.data.data.user && response.data.data.user.contributionsCollection) {
+                return response.data.data.user.contributionsCollection.totalCommitContributions;
+            } else {
+                console.error('Contributions data is null or undefined:', response.data.data.user);
+                return null;
+            }
         } else {
             console.error(`Failed to fetch total commits: ${response.status} ${response.statusText}`);
             console.error(response.data);
