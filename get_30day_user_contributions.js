@@ -1,7 +1,7 @@
 require('dotenv').config();
 const axios = require('axios');
 const { getTotalContributions } = require('./get_ttl_cmt');
-const { insertUserData } = require('./db_users_data');
+const { insertUserData } = require('./db_users_data.js');
 
 async function query(username) {
     const token = process.env.GITHUB_TOKEN;
@@ -112,8 +112,6 @@ async function getContributionsLast30Days(username) {
 
     // Prepare user data for insertion
     const userData = {
-        rank: 1, // Example rank, adjust as needed
-        ranking_value: 100, // Example ranking value, adjust as needed
         avatar: contributions.avatar,
         followers: contributions.followers,
         github_link: contributions.profileLink,
@@ -127,10 +125,7 @@ async function getContributionsLast30Days(username) {
         "30day_issues": contributions.issues,
         "30day_prs": contributions.prs,
         "30day_reviews": contributions.reviews,
-        stars_of_projects_committed_to: 200, // Example value, adjust as needed
-        non_empty_non_comment_additions: 1000, // Example value, adjust as needed
-        symbol_additions_excluding_comments: 500, // Example value, adjust as needed
-        average_complexity_of_commits: 3 // Example value, adjust as needed
+        stars_of_projects_committed_to: 200, 
     };
 
     // Insert user data into the database
