@@ -16,13 +16,13 @@ async function insertData(name, contributors, stars, commits) {
 
     const { data, error } = await supabase
         .from('repos')
-        .insert(newRepo)
+        .upsert(newRepo, { onConflict: 'name' }) // Use upsert with onConflict
         .select();
 
     if (error) {
-        console.error('Error inserting data:', error);
+        console.error('Error inserting/updating data:', error);
     } else {
-        console.log('Inserted data:', data);
+        console.log('Inserted/Updated data:', data);
     }
 }
 
