@@ -3,24 +3,31 @@ require('dotenv').config();
 
 async function summarizeCommitDetails(commitDetails_str) {
 
-    let textToSummarize = `Summarize github commit details: ${commitDetails_str}`;
-    // console.log(commitDetails_str);
+    let prompt = `Summarize what the commit is about. Commit Details: ${commitDetails_str}`;
+    // let prompt = `Classify the github commit details into one of the categories: routine, backend, frontend, devops, datasets, algorithms: ${commitDetails_str}`;
+    // let prompt = `Classify the github commit on the scale from 0 to 100 on the technical complexity. Response with a score number only. Commit Details: ${commitDetails_str}`;
+    // let prompt = `Classify the github commit into one of the technical complexity categories: simple, medium, hard: ${commitDetails_str}`;
 
-    
     try {
-        const response = await axios.post('https://api.ai21.com/studio/v1/summarize', {
-            source: textToSummarize,
-            sourceType: "TEXT"
-        }, {
-            headers: {
-                "Authorization": `Bearer ${process.env.AI21_API_KEY}`,
-                "Content-Type": "application/json"
+        const response = await axios.post(
+            'https://api.ai21.com/studio/v1/j2-ultra/complete',
+            {
+                prompt: prompt,
+                maxTokens: 100,
+                stopSequences: ["##"]
+            },
+            {
+                headers: {
+                    'Authorization': `Bearer ${process.env.AI21_API_KEY}`,
+                    'Content-Type': 'application/json'
+                }
             }
-        });
-
-        console.log("Summary:", response.data.summary);
+        );
+        console.log(response.data.completions[0].data.text);
+        return response.data.completions[0].data.text;
     } catch (error) {
-        console.error('Error summarizing commit details:', error);
+        console.error('Error fetching sentiment:', error);
+        return null;
     }
 }
 
