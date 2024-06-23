@@ -40,13 +40,15 @@ async function getUserRegistrationDate(username) {
     }
 }
 
-async function getTotalCommitsInRange(username, fromDate, toDate) {
+async function getTotalContributionsInRange(username, fromDate, toDate) {
     const token = process.env.GITHUB_TOKEN;
     const query = `
     query($userName: String!, $fromDate: DateTime!, $toDate: DateTime!) {
       user(login: $userName) {
         contributionsCollection(from: $fromDate, to: $toDate) {
-          totalCommitContributions
+          contributionCalendar {
+            totalContributions
+          }
         }
       }
     }
@@ -60,7 +62,7 @@ async function getTotalCommitsInRange(username, fromDate, toDate) {
         fromDate: fromDate.toISOString(),
         toDate: toDate.toISOString()
     };
-    console.log(`Fetching total commits for username: ${username} from ${fromDate.toISOString()} to ${toDate.toISOString()}`); // Add this log
+    console.log(`Fetching total contributions for username: ${username} from ${fromDate.toISOString()} to ${toDate.toISOString()}`); // Add this log
     try {
         const response = await axios.post('https://api.github.com/graphql', {
             query,
@@ -68,14 +70,15 @@ async function getTotalCommitsInRange(username, fromDate, toDate) {
         }, { headers });
         console.log('GitHub API response:', response.data); // Add this log
         if (response.status === 200) {
-            if (response.data.data.user && response.data.data.user.contributionsCollection) {
-                return response.data.data.user.contributionsCollection.totalCommitContributions;
+            if (response.data.data.user && response.data.data.user.contributionsCollection && response.data.data.user.contributionsCollection.contributionCalendar) {
+                const contributions = response.data.data.user.contributionsCollection.contributionCalendar;
+                return contributions.totalContributions;
             } else {
                 console.error('Contributions data is null or undefined:', response.data.data.user);
                 return null;
             }
         } else {
-            console.error(`Failed to fetch total commits: ${response.status} ${response.statusText}`);
+            console.error(`Failed to fetch total contributions: ${response.status} ${response.statusText}`);
             console.error(response.data);
             return null;
         }
@@ -85,7 +88,12 @@ async function getTotalCommitsInRange(username, fromDate, toDate) {
     }
 }
 
-async function getTotalCommits(username) {
+async function getTotalContributions(username) {
+    if (username.includes('[bot]')) {
+        console.error("Skipping bot account:", username);
+        return null;
+    }
+
     const registrationDate = await getUserRegistrationDate(username);
     if (!registrationDate) {
         console.error("Failed to fetch registration date.");
@@ -93,7 +101,7 @@ async function getTotalCommits(username) {
     }
 
     let currentDate = new Date();
-    let totalCommits = 0;
+    let totalContributions = 0;
 
     while (currentDate > registrationDate) {
         const fromDate = new Date(currentDate);
@@ -101,16 +109,16 @@ async function getTotalCommits(username) {
         if (fromDate < registrationDate) {
             fromDate.setTime(registrationDate.getTime());
         }
-        const commits = await getTotalCommitsInRange(username, fromDate, currentDate);
-        if (commits !== null) {
-            totalCommits += commits;
-            console.log(`Commits from ${fromDate.toISOString()} to ${currentDate.toISOString()}: ${commits}`);
+        const contributions = await getTotalContributionsInRange(username, fromDate, currentDate);
+        if (contributions !== null) {
+            totalContributions += contributions;
+            console.log(`Contributions from ${fromDate.toISOString()} to ${currentDate.toISOString()}: ${contributions}`);
         }
         currentDate = fromDate;
     }
 
-    console.log(`Total commits since registration for ${username}: ${totalCommits}`);
-    return totalCommits;
+    console.log(`Total contributions since registration for ${username}: ${totalContributions}`);
+    return totalContributions;
 }
 
-module.exports = { getTotalCommits };
+module.exports = { getTotalContributions };

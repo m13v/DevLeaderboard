@@ -1,6 +1,6 @@
 require('dotenv').config();
 const axios = require('axios');
-const { getTotalCommits } = require('./get_ttl_cmt');
+const { getTotalContributions } = require('./get_ttl_cmt');
 const { insertUserData } = require('./db_users_data');
 
 async function query(username) {
@@ -97,7 +97,7 @@ async function getContributionsLast30Days(username) {
     console.log(`getContributionsLast30Days(${username})`);
 
     // Get total commits since registration
-    const totalCommits = await getTotalCommits(username);
+    const totalCommits = await getTotalContributions(username);
     if (totalCommits === null) {
         console.error("Failed to fetch total commits.");
         return null; // Return null to indicate failure

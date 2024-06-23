@@ -156,7 +156,11 @@ async function getContributors(repoUrl) {
             let username = contributor.login;
             console.log(`contributor.username: ${username}`);
             const contributionsLast30Days = await getContributionsLast30Days(username);
-            console.log(`Contributions in the last 30 days for ${contributor.login}: ${contributionsLast30Days.total}`);
+            if (contributionsLast30Days) {
+                console.log(`Contributions in the last 30 days for ${contributor.login}: ${contributionsLast30Days.total}`);
+            } else {
+                console.error(`Failed to fetch contributions for ${contributor.login}`);
+            }
         }
 
         try {
