@@ -8,7 +8,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 async function insertUserData(userData) {
     const { data, error } = await supabase
         .from('users')
-        .upsert([userData], { onConflict: 'github_link' }) // Use upsert with onConflict
+        .upsert([userData], { onConflict: 'github_link' }) 
         .select();
 
     if (error) {
@@ -25,9 +25,11 @@ async function getAllUsers() {
 
     if (error) {
         console.error('Error fetching data:', error);
+        return [];
     } else {
-        console.log('Data fetched successfully:', data);
+        return data;
     }
 }
 
 module.exports = { insertUserData, getAllUsers }; 
+
