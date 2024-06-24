@@ -22,14 +22,3 @@ function countNonEmptyNonCommentLines(code, language) {
         return count;
     }, 0);
 }
-
-// Example usage
-// const codeSnippet = `
-// def hello_world():
-//     print("Hello, world!")  # This is a comment
-
-// # Another comment
-// hello_world()
-// `;
-
-// console.log(countNonEmptyNonCommentLines(codeSnippet, 'python'));  // Output: 3
