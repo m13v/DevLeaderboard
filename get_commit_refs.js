@@ -8,23 +8,14 @@ async function getCommits(username) {
     if (!username) {
         throw new Error('Please provide a GitHub username.');
     }
-
-    const sinceDate = new Date();
-    sinceDate.setDate(sinceDate.getDate() - DAYS);
-    const since = sinceDate.toISOString();
-
     const eventsUrl = `https://api.github.com/users/${username}/events`;
     const headers = { Authorization: `token ${TOKEN}` };
     const { data: events } = await axios.get(eventsUrl, { headers });
-
     const commits = [];
-
     events.forEach(event => {
         if (event.type === 'PushEvent') {
             event.payload.commits.forEach(commit => {
-                if (event.actor.login === username) {
-                    commits.push(commit.sha);
-                }
+                commits.push(commit.url);
             });
         }
     });
@@ -33,6 +24,41 @@ async function getCommits(username) {
 }
 
 module.exports = { getCommits };
+
+
+// require('dotenv').config();
+// const axios = require('axios');
+
+// const TOKEN = process.env.GITHUB_TOKEN;
+// const USERNAME = 'jerryjliu';
+// const headers = { Authorization: `token ${TOKEN}` };
+
+// async function getCommitUrls(username) {
+//     const reposUrl = `https://api.github.com/users/${username}/repos`;
+//     const { data: repos } = await axios.get(reposUrl, { headers });
+//     console.log('repos=',JSON.stringify(repos));
+//     const commitUrls = [];
+    
+//     for (const repo of repos) {
+//         const branchesUrl = `https://api.github.com/repos/${username}/${repo.name}/branches`;
+//         const { data: branches } = await axios.get(branchesUrl, { headers });
+//         console.log('branches=',JSON.stringify(branches));
+
+//         for (const branch of branches) {
+//             const commitsUrl = `https://api.github.com/repos/${username}/${repo.name}/commits?sha=${branch.name}`;
+//             const { data: commits } = await axios.get(commitsUrl, { headers });
+//             console.log('commits=',JSON.stringify(commits));
+//             commits.forEach(commit => {
+//                 commitUrls.push(commit.url);
+//             });
+//         }
+//     }
+
+//     return commitUrls;
+// }
+
+// getCommitUrls(USERNAME).then(urls => console.log(urls)).catch(err => console.error(err));
+
 
 
 // require('dotenv').config();
