@@ -125,7 +125,6 @@ async function getContributionsLast30Days(username) {
         "30day_issues": contributions.issues,
         "30day_prs": contributions.prs,
         "30day_reviews": contributions.reviews,
-        stars_of_projects_committed_to: 200, 
     };
 
     // Insert user data into the database

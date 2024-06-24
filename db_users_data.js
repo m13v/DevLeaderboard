@@ -12,7 +12,7 @@ async function insertUserData(userData) {
         .select();
 
     if (error) {
-        console.error('Error inserting/updating data:', error);
+        console.error('Error inserting/updating data:', data, 'ERROR:', error);
     } else {
         console.log('Data inserted/updated successfully:', data);
     }
