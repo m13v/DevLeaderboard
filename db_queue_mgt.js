@@ -14,7 +14,6 @@ async function insertData(commitUrls, username) {
     const { data: queueData, error: queueError } = await supabase
         .from('queue')
         .insert(rows, { onConflict: ['commit_url'] });
-
     if (queueError) {
         console.error('Error inserting into queue:', queueError);
     } else {
@@ -37,10 +36,11 @@ async function checkCommitsExist(commit_urls) {
 }
 
 async function get50QueueContents() {
-    .from('queue')
-    .select('*')
-    .order('created_at', { ascending: false }) 
-    .limit(50); 
+    const { data, error } = await supabase
+        .from('queue')
+        .select('*')
+        .order('created_at', { ascending: false }) 
+        .limit(50); 
 
 if (error) {
     console.error('Error fetching queue contents:', error);
