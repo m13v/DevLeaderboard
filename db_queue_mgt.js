@@ -36,20 +36,21 @@ async function checkCommitsExist(commit_urls) {
     return data.map(row => row.commit_sha);
 }
 
-async function getAllQueueContents() {
-    const { data, error } = await supabase
-        .from('queue')
-        .select('*');
+async function get50QueueContents() {
+    .from('queue')
+    .select('*')
+    .order('created_at', { ascending: false }) 
+    .limit(50); 
 
-    if (error) {
-        console.error('Error fetching queue contents:', error);
-        return [];
-    }
-
-    return data;
+if (error) {
+    console.error('Error fetching queue contents:', error);
+    return [];
 }
 
-async function moveShaToCompleted(commit_url, commitData) {
+return data;
+}
+
+async function moveCommitToCompleted(commit_url, commitData) {
     const { data: queueData, error: queueError } = await supabase
         .from('queue')
         .select('*')
@@ -83,4 +84,4 @@ async function moveShaToCompleted(commit_url, commitData) {
     }
 }
 
-module.exports = { insertData, checkCommitsExist, getAllQueueContents, moveShaToCompleted };
+module.exports = { insertData, checkCommitsExist, get50QueueContents, moveCommitToCompleted };
