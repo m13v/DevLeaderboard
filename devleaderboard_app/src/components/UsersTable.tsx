@@ -26,28 +26,37 @@ const UsersTable = () => {
 
   useEffect(() => {
     const getUsers = async () => {
+      const userMetrics = await fetchUserMetrics(); // Fetch the new data first
       const usersData: User[] = await fetchUsers();
       const commitStats = await fetchUserCommitStats();
-      const userMetrics = await fetchUserMetrics(); // Fetch the new data
 
-      // Extract user_id from github_link
+      console.log('Fetched User Metrics:', userMetrics);
+      console.log('Fetched Users:', usersData);
+      console.log('Fetched Commit Stats:', commitStats);
+
       const extractUserId = (githubLink: string) => githubLink.split('/').pop() || '';
 
-      // Merge the commit stats and user metrics with the user data
-      const mergedData = usersData.map(user => {
-        const userId = extractUserId(user.github_link);
+      const mergedData = userMetrics.map(userMetric => {
+        const userId = userMetric.user_id;
+        const user = usersData.find(user => extractUserId(user.github_link) === userId) || {};
+        const commitStat = commitStats.find((stat: { user_id: string }) => stat.user_id === userId);
+
+        console.log(`User ID: ${userId}`, { user, commitStat });
+
         return {
           ...user,
-          name: user.name || userId, // Insert username if name is not available
-          ...commitStats.find((stat: { user_id: string }) => stat.user_id === userId), // Explicitly type 'stat'
-          rank: userMetrics.find((metric: { user_id: string }) => metric.user_id === userId)?.rank || user.rank // Populate rank
+          name: user.name || userId,
+          ...commitStat,
+          rank: userMetric.rank
         };
       });
 
-      // Sort by rank in ascending order
-      mergedData.sort((a, b) => a.rank - b.rank);
+      // Sort by rank and limit to 300 rows
+      const sortedAndLimitedData = mergedData.sort((a, b) => a.rank - b.rank).slice(0, 300);
 
-      setUsers(mergedData);
+      console.log('Sorted and Limited Data:', sortedAndLimitedData);
+
+      setUsers(sortedAndLimitedData);
     };
     getUsers();
   }, []);
