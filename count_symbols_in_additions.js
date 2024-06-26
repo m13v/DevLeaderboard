@@ -11,7 +11,7 @@ const extractCountFromCommit = (commitData) => {
             };
         }
 
-        const additions = file.patch.split('\n').filter(line => line.startsWith('+') && !line.startsWith('+++'));
+        const additions = file.patch.split('\n').filter(line => line.startsWith('+') && !line.startsWith('+++') && line.trim() !== '+');
         const additionsText = additions.join('\n');
         const cleanedText = additionsText.split('\n').map(line => line.replace(/^\+/, '')).join('\n');
         const symbolCount = cleanedText.length;
