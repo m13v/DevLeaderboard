@@ -4,6 +4,7 @@ const { insertData } = require('./db_repos_data');
 const { getContributionsLast30Days } = require('./get_30day_user_contributions');
 const { isValidUrl, createGithubUrl } = require('./isValidUrl');
 const { getTopRepoForOrg } = require('./get_org_repos');
+const getFollowing = require('./get_following');
 
 async function getRepoDetails(repoUrl) {
     const token = process.env.GITHUB_TOKEN;
@@ -151,23 +152,31 @@ async function getContributors(repoUrl) {
         const contributors = await getContributors(repoUrl);
         const numContributors = contributors.length;
         console.log(`Contributors: ${numContributors}`);
-        for (const contributor of contributors) {
-            console.log(`contributor.login: ${contributor.login}: ${contributor.contributions} contributions`);
-            let username = contributor.login;
-            console.log(`contributor.username: ${username}`);
-            const contributionsLast30Days = await getContributionsLast30Days(username);
-            if (contributionsLast30Days) {
-                console.log(`Contributions in the last 30 days for ${contributor.login}: ${contributionsLast30Days.total}`);
-            } else {
-                console.error(`Failed to fetch contributions for ${contributor.login}`);
-            }
-        }
-
         try {
             await insertData(repoName, numContributors, repoDetails.stars, repoDetails.commits, repoDetails.createdAt);
         } catch (error) {
             console.error(`Error inserting/updating data: ${error.message}`);
         }
+
+        let allUsers = [...contributors]; // Start with the list of contributors
+
+        for (const contributor of contributors) {
+            const username = contributor.login;
+            const following = await getFollowing(username);
+            console.log(`Users followed by ${username}:`, following);
+            allUsers = allUsers.concat(following.map(user => ({ login: user }))); // Add followed users to the list
+        }
+
+        for (const user of allUsers) {
+            console.log(`user.login: ${user.login}`);
+            const contributionsLast30Days = await getContributionsLast30Days(user.login);
+            if (contributionsLast30Days) {
+                console.log(`Contributions in the last 30 days for ${user.login}: ${contributionsLast30Days.total}`);
+            } else {
+                console.error(`Failed to fetch contributions for ${user.login}`);
+            }
+        }
+
     } else {
         console.error("Failed to fetch repository details.");
     }
