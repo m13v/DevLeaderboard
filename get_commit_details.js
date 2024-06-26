@@ -8,7 +8,7 @@ async function getCommitDetails(commitUrl) {
     }
 
     const headers = {
-        "Accept": "application/vnd.github+json",
+        "Accept": "application/vnd.github.v3+json", // Updated to match curl request
         "Authorization": `Bearer ${token}`,
         "User-Agent": "axios/1.7.2"
     };
@@ -45,5 +45,5 @@ async function getCommitDetails(commitUrl) {
 module.exports = { getCommitDetails };
 
 // If you want to run this script directly, uncomment the following lines:
-// const commitUrl = "https://api.github.com/repos/matthew-heartful/DevLeaderboard/commits/dd0d56a2888efa8c51fb9a97fe495b3d7d102254";
+// const commitUrl = "https://api.github.com/repos/jitsecurity-soss/langchain/commits/295b9b704b668f39f0417d27757e32201385566c";
 // getCommitDetails(commitUrl).then(data => console.log(data)).catch(err => console.error(err));
