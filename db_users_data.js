@@ -31,5 +31,18 @@ async function getAllUsers() {
     }
 }
 
-module.exports = { insertUserData, getAllUsers }; 
+async function getUserByGithubLink(githubLink) {
+    const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('github_link', githubLink);
 
+    if (error) {
+        console.error('Error fetching user data:', error);
+        return null;
+    } else {
+        return data;
+    }
+}
+
+module.exports = { insertUserData, getAllUsers, getUserByGithubLink };
