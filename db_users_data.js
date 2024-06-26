@@ -45,4 +45,19 @@ async function getUserByGithubLink(githubLink) {
     }
 }
 
-module.exports = { insertUserData, getAllUsers, getUserByGithubLink };
+async function getLimitedUsers(limit = 50) {
+    const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .order('id', { ascending: false }) // Order by id in descending order
+        .limit(limit);
+
+    if (error) {
+        console.error('Error fetching data:', error);
+        return [];
+    } else {
+        return data;
+    }
+}
+
+module.exports = { insertUserData, getAllUsers, getUserByGithubLink, getLimitedUsers };
