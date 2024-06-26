@@ -9,17 +9,36 @@ async function getCommitDetails(commitUrl) {
 
     const headers = {
         "Accept": "application/vnd.github+json",
-        "Authorization": `Bearer ${token}`
+        "Authorization": `Bearer ${token}`,
+        "User-Agent": "axios/1.7.2"
     };
 
-    try {
-        const response = await axios.get(commitUrl, { headers });
-        const commitData = response.data;
-        // console.log('Commit Data:', JSON.stringify(commitData, null, 2)); // Pretty print the JSON
-        return commitData;
-    } catch (error) {
-        console.error('Error fetching commit details:', error);
-        throw error;
+    const maxRetries = 3;
+    const retryDelay = (retryCount) => Math.pow(2, retryCount) * 1000;
+    const timeout = 3600000; // 1 hour in milliseconds
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+            const response = await axios.get(commitUrl, { headers, timeout });
+            return response.data;
+        } catch (error) {
+            if (error.response && error.response.status === 429 && attempt < maxRetries) {
+                console.warn(`Rate limit exceeded. Retrying in ${retryDelay(attempt)}ms...`);
+                await new Promise(resolve => setTimeout(resolve, retryDelay(attempt)));
+            } else {
+                if (error.response) {
+                    console.error('Error response:', error.response.data);
+                    if (error.response.status === 404) {
+                        console.error('Commit not found:', commitUrl);
+                    }
+                } else if (error.request) {
+                    console.error('Error request:', error.request);
+                } else {
+                    console.error('Error message:', error.message);
+                }
+                break;
+            }
+        }
     }
 }
 
