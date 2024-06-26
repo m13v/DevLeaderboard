@@ -1,72 +1,112 @@
 require('dotenv').config();
 const axios = require('axios');
 const { getTotalContributions } = require('./get_ttl_cmt');
-const { insertUserData } = require('./db_users_data.js');
+const { insertUserData, getUserByGithubLink } = require('./db_users_data.js');
 
 async function query(username) {
     const token = process.env.GITHUB_TOKEN;
     const query = `
-    query($userName: String!, $fromDate: DateTime!, $registrationDate: DateTime!) {
+    query($userName: String!, $fromDate: DateTime!, $toDate: DateTime!) {
       user(login: $userName) {
+        login
+        name
+        bio
+        url
         avatarUrl
+        company
+        location
+        email
+        websiteUrl
+        twitterUsername
+        createdAt
         followers {
           totalCount
         }
-        url
-        repositories {
+        following {
           totalCount
         }
-        contributionsCollection(from: $fromDate) {
+        contributionsCollection(from: $fromDate, to: $toDate) {
           totalCommitContributions
           totalIssueContributions
           totalPullRequestContributions
           totalPullRequestReviewContributions
+          restrictedContributionsCount
           contributionCalendar {
             totalContributions
           }
+          commitContributionsByRepository {
+            repository {
+              name
+            }
+            contributions(first: 10) {
+              nodes {
+                commitCount
+              }
+            }
+          }
         }
-        totalContributions: contributionsCollection(from: $registrationDate) {
-          totalCommitContributions
+        repositories {
+          totalCount
         }
-        createdAt
-        location
-        email
+        gists(first: 10) {
+          nodes {
+            name
+            description
+            url
+            files {
+              name
+              language {
+                name
+              }
+            }
+          }
+        }
+        organizations(first: 10) {
+          nodes {
+            name
+            url
+          }
+        }
+        starredRepositories(first: 10) {
+          nodes {
+            name
+            owner {
+              login
+            }
+            stargazerCount
+          }
+        }
       }
-    }
-    `;
+    }`;
     const headers = {
         'Authorization': `bearer ${token}`,
         'Content-Type': 'application/json'
     };
     const fromDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const toDate = new Date().toISOString();
     const variables = {
         userName: username,
         fromDate: fromDate,
-        registrationDate: new Date(0).toISOString() // Unix epoch start date
+        toDate: toDate
     };
     try {
         const response = await axios.post('https://api.github.com/graphql', {
             query,
             variables
         }, { headers });
+
         if (response.status === 200) {
-            const user = response.data.data.user;
+            const user = response.data.data?.user;
+            if (!user) {
+                console.error('User not found in the response.');
+                return null;
+            }
             const contributions = user.contributionsCollection;
             const totalContributions = contributions.contributionCalendar.totalContributions;
             const commitContributions = contributions.totalCommitContributions;
             const issueContributions = contributions.totalIssueContributions;
             const prContributions = contributions.totalPullRequestContributions;
             const reviewContributions = contributions.totalPullRequestReviewContributions;
-
-            console.log(`Total contributions in the last 30 days for ${username}: ${totalContributions}`);
-            console.log(`Commits: ${commitContributions}, Issues: ${issueContributions}, PRs: ${prContributions}, Reviews: ${reviewContributions}`);
-            console.log(`Avatar: ${user.avatarUrl}`);
-            console.log(`Followers: ${user.followers.totalCount}`);
-            console.log(`Profile Link: ${user.url}`);
-            console.log(`Total Repositories: ${user.repositories.totalCount}`);
-            console.log(`Joined: ${user.createdAt}`);
-            console.log(`Location: ${user.location}`);
-            console.log(`Email: ${user.email}`);
 
             return {
                 total: totalContributions,
@@ -80,11 +120,16 @@ async function query(username) {
                 totalRepositories: user.repositories.totalCount,
                 joined: user.createdAt,
                 location: user.location,
-                email: user.email
+                email: user.email,
+                name: user.name,
+                bio: user.bio,
+                twitterUsername: user.twitterUsername,
+                websiteUrl: user.websiteUrl,
+                rspjs2: response.data
             };
         } else {
             console.error(`Failed to fetch contributions: ${response.status} ${response.statusText}`);
-            console.error(response.data);
+            console.log('response.data=',response.data);
             return null;
         }
     } catch (error) {
@@ -96,18 +141,26 @@ async function query(username) {
 async function getContributionsLast30Days(username) {
     console.log(`getContributionsLast30Days(${username})`);
 
-    // Get total commits since registration
-    const totalCommits = await getTotalContributions(username);
-    if (totalCommits === null) {
-        console.error("Failed to fetch total commits.");
-        return null; // Return null to indicate failure
-    }
-
     // Get contributions for the last 30 days
     const contributions = await query(username);
     if (contributions === null) {
         console.error("Failed to fetch contributions for the last 30 days.");
         return null; // Return null to indicate failure
+    }
+
+    // Check if user data already exists
+    const existingUser = await getUserByGithubLink(contributions.profileLink);
+    let totalContributions;
+    if (existingUser && existingUser.length > 0 && existingUser[0].total_contributions) {
+        totalContributions = existingUser[0].total_contributions;
+        console.log(`Total contributions already exist: ${totalContributions}`);
+    } else {
+        // Get total commits since registration
+        totalContributions = await getTotalContributions(username, contributions.joined);
+        if (totalContributions === null) {
+            console.error("Failed to fetch total commits.");
+            return null; // Return null to indicate failure
+        }
     }
 
     // Prepare user data for insertion
@@ -117,7 +170,7 @@ async function getContributionsLast30Days(username) {
         github_link: contributions.profileLink,
         last_request: new Date().toISOString(),
         total_repo: contributions.totalRepositories,
-        total_commits: totalCommits,
+        total_contributions: totalContributions,
         joined: contributions.joined,
         location: contributions.location,
         email: contributions.email,
@@ -125,7 +178,19 @@ async function getContributionsLast30Days(username) {
         "30day_issues": contributions.issues,
         "30day_prs": contributions.prs,
         "30day_reviews": contributions.reviews,
+        name: contributions.name,
+        bio: contributions.bio,
+        twitterUsername: contributions.twitterUsername,
+        website: contributions.websiteUrl,
+        rspjs2: contributions.rspjs2
     };
+
+    // Remove null fields
+    Object.keys(userData).forEach(key => {
+        if (userData[key] === null) {
+            delete userData[key];
+        }
+    });
 
     // Insert user data into the database
     try {
