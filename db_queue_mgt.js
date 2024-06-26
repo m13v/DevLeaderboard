@@ -63,9 +63,19 @@ async function moveCommitToCompleted(commit_url, commitData) {
     }
 
     const { user, commit_url: commitUrl } = queueData; 
+    const { additions_data, total_additions, total_symbol_count, total_non_empty_lines } = commitData;
+
     const { data: completedData, error: completedError } = await supabase
         .from('completed_shas')
-        .insert([{ users: user, commit_url: commitUrl, commit_data: commitData }]); 
+        .insert([{
+            users: user,
+            commit_url: commitUrl,
+            commit_data: commitData,
+            additions_data,
+            total_additions,
+            total_symbol_count,
+            total_non_empty_lines
+        }]);
 
     if (completedError) {
         console.error('Error inserting into completed_shas:', completedError);
