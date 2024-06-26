@@ -94,4 +94,18 @@ async function moveCommitToCompleted(commit_url, commitData) {
     }
 }
 
-module.exports = { insertData, checkCommitsExist, get50QueueContents, moveCommitToCompleted };
+async function delete_commit_from_queue(commit_url) {
+    const { error } = await supabase
+        .from('queue')
+        .delete()
+        .eq('commit_url', commit_url);
+
+    if (error) {
+        console.error('Error deleting commit from queue:', error);
+    } else {
+        console.log('Deleted commit from queue:', commit_url);
+    }
+}
+
+
+module.exports = { insertData, checkCommitsExist, get50QueueContents, moveCommitToCompleted, delete_commit_from_queue };
