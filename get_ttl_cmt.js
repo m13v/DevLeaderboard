@@ -1,45 +1,6 @@
 require('dotenv').config();
 const axios = require('axios');
 
-async function getUserRegistrationDate(username) {
-    const token = process.env.GITHUB_TOKEN;
-    const query = `
-    query($userName: String!) {
-      user(login: $userName) {
-        createdAt
-      }
-    }
-    `;
-    const headers = {
-        'Authorization': `bearer ${token}`,
-        'Content-Type': 'application/json'
-    };
-    const variables = { userName: username };
-    console.log(`Fetching registration date for username: ${username}`); // Add this log
-    try {
-        const response = await axios.post('https://api.github.com/graphql', {
-            query,
-            variables
-        }, { headers });
-        console.log('GitHub API response:', response.data); // Add this log
-        if (response.status === 200) {
-            if (response.data.data.user) {
-                return new Date(response.data.data.user.createdAt);
-            } else {
-                console.error('User data is null or undefined:', response.data.data.user);
-                return null;
-            }
-        } else {
-            console.error(`Failed to fetch registration date: ${response.status} ${response.statusText}`);
-            console.error(response.data);
-            return null;
-        }
-    } catch (error) {
-        console.error(`Error: ${error.message}`);
-        return null;
-    }
-}
-
 async function getTotalContributionsInRange(username, fromDate, toDate) {
     const token = process.env.GITHUB_TOKEN;
     const query = `
@@ -88,15 +49,15 @@ async function getTotalContributionsInRange(username, fromDate, toDate) {
     }
 }
 
-async function getTotalContributions(username) {
+async function getTotalContributions(username, joined) {
     if (username.includes('[bot]')) {
         console.error("Skipping bot account:", username);
         return null;
     }
 
-    const registrationDate = await getUserRegistrationDate(username);
+    const registrationDate = new Date(joined);
     if (!registrationDate) {
-        console.error("Failed to fetch registration date.");
+        console.error("Invalid registration date.");
         return null;
     }
 
