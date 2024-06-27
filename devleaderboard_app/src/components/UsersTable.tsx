@@ -6,7 +6,7 @@ import { fetchUserCommitStats } from '../lib/fetchUserCommitStats';
 import { fetchUserMetrics } from '../lib/fetchUserMetrics'; // Import the new method
 import { Table, TableHeader, TableRow, TableHead, TableCell, TableBody } from '../components/ui/table';
 
-interface User {
+export interface User {
   rank: number;
   avatar: string;
   name: string;
@@ -19,6 +19,12 @@ interface User {
   total_additions: number;
   total_non_empty_lines: number;
   total_symbol_count: number;
+}
+
+interface UserMetric {
+  user_id: string;
+  rank: number;
+  // Add other fields as necessary
 }
 
 const UsersTable = () => {
@@ -36,9 +42,9 @@ const UsersTable = () => {
 
       const extractUserId = (githubLink: string) => githubLink.split('/').pop() || '';
 
-      const mergedData = userMetrics.map(userMetric => {
+      const mergedData = userMetrics.map((userMetric: UserMetric) => {
         const userId = userMetric.user_id;
-        const user = usersData.find(user => extractUserId(user.github_link) === userId) || {};
+        const user = usersData.find(user => extractUserId(user.github_link) === userId) || { name: '', avatar: '', followers: 0, total_contributions: 0, total_repo: 0, joined: '', github_link: '', total_commits: 0, total_additions: 0, total_non_empty_lines: 0, total_symbol_count: 0 };
         const commitStat = commitStats.find((stat: { user_id: string }) => stat.user_id === userId);
 
         console.log(`User ID: ${userId}`, { user, commitStat });
@@ -52,7 +58,7 @@ const UsersTable = () => {
       });
 
       // Sort by rank and limit to 300 rows
-      const sortedAndLimitedData = mergedData.sort((a, b) => a.rank - b.rank).slice(0, 300);
+      const sortedAndLimitedData = mergedData.sort((a: User, b: User) => a.rank - b.rank).slice(0, 300);
 
       console.log('Sorted and Limited Data:', sortedAndLimitedData);
 
@@ -76,6 +82,8 @@ const UsersTable = () => {
         <br />
         <br />
         Happy for your feedback. Discord: matthew.ddy, X: @MatthewHeartful, email: i@m13v.com
+        <br />
+        <br />
       </p>
       <Table>
         <TableHeader>
