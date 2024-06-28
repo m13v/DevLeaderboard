@@ -5,9 +5,9 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-async function insertData(name, contributors, stars, commits) {
+async function insertData(repo_url, contributors, stars, commits) {
     const newRepo = {
-        name,
+        repo_url,
         contributors,
         stars,
         commits,
@@ -16,7 +16,7 @@ async function insertData(name, contributors, stars, commits) {
 
     const { data, error } = await supabase
         .from('repos')
-        .upsert(newRepo, { onConflict: 'name' })
+        .upsert(newRepo, { onConflict: 'repo_url' })
         .select();
 
     if (error) {
@@ -33,9 +33,24 @@ async function printRepoData() {
 
     if (error) {
         console.error('Error fetching data:', error);
+        return [];
     } else {
         console.log('Repository Data:', data);
+        return data; // Return the fetched data
     }
 }
 
-module.exports = { insertData, printRepoData };
+async function updateRepo(repo_url, fulldetails, ai_tag) {
+    const { data, error } = await supabase
+        .from('repos')
+        .update({ fulldetails, ai_tag })
+        .eq('repo_url', repo_url);
+
+    if (error) {
+        console.error('Error updating repo:', error);
+    } else {
+        console.log('Updated repo:', data);
+    }
+}
+
+module.exports = { insertData, printRepoData, updateRepo };
