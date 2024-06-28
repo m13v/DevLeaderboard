@@ -1,0 +1,228 @@
+{
+  "data": {
+    "user": {
+      "bio": null,
+      "url": "https://github.com/jerryjliu",
+      "name": "Jerry Liu",
+      "email": "jerryjliu98@gmail.com",
+      "gists": {
+        "nodes": [
+          {
+            "url": "https://gist.github.com/6184232e4f4ddeb6ca2070aceada5c69",
+            "name": "6184232e4f4ddeb6ca2070aceada5c69",
+            "files": [
+              {
+                "name": "openai.py",
+                "language": {
+                  "name": "Python"
+                }
+              }
+            ],
+            "description": "Setup regular OpenAI (KG workshop)"
+          }
+        ]
+      },
+      "login": "jerryjliu",
+      "company": null,
+      "location": null,
+      "avatarUrl": "https://avatars.githubusercontent.com/u/4858925?u=eb0717916ba7f9d8b9402d17a22e6f645d0f97c7&v=4",
+      "createdAt": "2013-06-28T01:46:57Z",
+      "followers": {
+        "totalCount": 3878
+      },
+      "following": {
+        "totalCount": 2
+      },
+      "websiteUrl": null,
+      "repositories": {
+        "totalCount": 48
+      },
+      "organizations": {
+        "nodes": []
+      },
+      "twitterUsername": null,
+      "starredRepositories": {
+        "nodes": [
+          {
+            "name": "reaver",
+            "owner": {
+              "login": "inoryy"
+            },
+            "stargazerCount": 555
+          },
+          {
+            "name": "great_expectations",
+            "owner": {
+              "login": "great-expectations"
+            },
+            "stargazerCount": 9619
+          },
+          {
+            "name": "BikeDashboardPlus",
+            "owner": {
+              "login": "jonathanhliu21"
+            },
+            "stargazerCount": 6
+          },
+          {
+            "name": "nannyml",
+            "owner": {
+              "login": "NannyML"
+            },
+            "stargazerCount": 1799
+          },
+          {
+            "name": "stablediffusion",
+            "owner": {
+              "login": "Stability-AI"
+            },
+            "stargazerCount": 37325
+          },
+          {
+            "name": "xformers",
+            "owner": {
+              "login": "facebookresearch"
+            },
+            "stargazerCount": 7944
+          },
+          {
+            "name": "codon",
+            "owner": {
+              "login": "exaloop"
+            },
+            "stargazerCount": 13945
+          },
+          {
+            "name": "tiktoken",
+            "owner": {
+              "login": "openai"
+            },
+            "stargazerCount": 10933
+          },
+          {
+            "name": "obsidian-smart-connections",
+            "owner": {
+              "login": "brianpetro"
+            },
+            "stargazerCount": 2147
+          },
+          {
+            "name": "ruff",
+            "owner": {
+              "login": "astral-sh"
+            },
+            "stargazerCount": 28405
+          }
+        ]
+      },
+      "contributionsCollection": {
+        "contributionCalendar": {
+          "totalContributions": 45
+        },
+        "totalIssueContributions": 0,
+        "totalCommitContributions": 19,
+        "restrictedContributionsCount": 1,
+        "totalPullRequestContributions": 20,
+        "commitContributionsByRepository": [
+          {
+            "repository": {
+              "name": "llama_index"
+            },
+            "contributions": {
+              "nodes": [
+                {
+                  "commitCount": 1
+                },
+                {
+                  "commitCount": 1
+                },
+                {
+                  "commitCount": 1
+                },
+                {
+                  "commitCount": 1
+                },
+                {
+                  "commitCount": 1
+                },
+                {
+                  "commitCount": 1
+                },
+                {
+                  "commitCount": 1
+                }
+              ]
+            }
+          },
+          {
+            "repository": {
+              "name": "llama_parse"
+            },
+            "contributions": {
+              "nodes": [
+                {
+                  "commitCount": 1
+                },
+                {
+                  "commitCount": 2
+                },
+                {
+                  "commitCount": 1
+                },
+                {
+                  "commitCount": 1
+                }
+              ]
+            }
+          },
+          {
+            "repository": {
+              "name": "llama-agents"
+            },
+            "contributions": {
+              "nodes": [
+                {
+                  "commitCount": 1
+                },
+                {
+                  "commitCount": 1
+                },
+                {
+                  "commitCount": 1
+                }
+              ]
+            }
+          },
+          {
+            "repository": {
+              "name": "dspy"
+            },
+            "contributions": {
+              "nodes": [
+                {
+                  "commitCount": 1
+                },
+                {
+                  "commitCount": 2
+                }
+              ]
+            }
+          },
+          {
+            "repository": {
+              "name": "crewAI-tools"
+            },
+            "contributions": {
+              "nodes": [
+                {
+                  "commitCount": 1
+                }
+              ]
+            }
+          }
+        ],
+        "totalPullRequestReviewContributions": 3
+      }
+    }
+  }
+}
