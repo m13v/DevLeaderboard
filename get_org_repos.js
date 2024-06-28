@@ -41,7 +41,7 @@ function isValidUrl(url) {
 }
 
 function createGithubUrl(orgName) {
-    return `https://github.com/${orgName}`;
+    return `https://api.github.com/orgs/${orgName}`; //assume that api is available
 }
 
 async function getTopRepoForOrg(orgUrl) {
