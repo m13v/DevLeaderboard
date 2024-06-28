@@ -8,7 +8,7 @@ function isValidUrl(string) {
 }
 
 function createGithubUrl(repoName) {
-  const baseUrl = 'https://github.com/';
+  const baseUrl = 'https://api.github.com/repos/';
   return `${baseUrl}${repoName}`;
 }
 
