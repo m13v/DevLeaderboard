@@ -1,6 +1,6 @@
 const { getLimitedUsers } = require('./db_users_data');
 const { getCommits } = require('./get_commit_refs');
-const { insertData, checkCommitsExist } = require('./db_queue_mgt');
+const { insertData, filterNewCommits } = require('./db_queue_mgt');
 
 function extractUsernameFromGithubLink(githubLink) {
     return githubLink.split('/').pop();
@@ -44,10 +44,8 @@ async function processUsers() {
                     const username = extractUsernameFromGithubLink(user.github_link);
                     console.log('Requesting data for: ', username);
                     const commitUrls = await fetchAndRetryIfNecessary(() => getCommits(username));
-                    console.log('commitUrls: ', commitUrls);
-                    const existingShas = await checkCommitsExist(commitUrls);
-                    console.log('existingShas: ', existingShas);
-                    const newCommitUrls = commitUrls.filter(url => !existingShas.includes(url.split('/').pop()));
+                    // console.log('commitUrls: ', commitUrls);
+                    const newCommitUrls = await filterNewCommits(commitUrls);
                     console.log('newCommitUrls: ', newCommitUrls);
 
                     if (newCommitUrls.length > 0) {
