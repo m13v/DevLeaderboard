@@ -4,6 +4,7 @@ const { insertData } = require('./db_repos_data');
 const { getContributionsLast30Days } = require('./get_30day_user_contributions');
 const { isValidUrl, createGithubUrl } = require('./isValidUrl');
 const { getTopRepoForOrg } = require('./get_org_repos');
+const { pushUserRepos } = require('./repo_queue_mgt');
 const getFollowing = require('./get_following');
 
 async function getRepoDetails(repoUrl) {
@@ -22,9 +23,6 @@ async function getRepoDetails(repoUrl) {
         const response = await axios.get(apiUrl, { headers });
         console.log(`Response status: ${response.status}`); // Debug log
         if (response.status === 200) {
-            console.log(`Repo data:`);
-            console.log(response);
-            console.log(`Repo data: ${JSON.stringify(response.data)}`); // Debug log
             return {
                 stars: response.data.stargazers_count,
                 commits: await getCommitsCount(owner, repo, headers),
@@ -35,9 +33,18 @@ async function getRepoDetails(repoUrl) {
             return null;
         }
     } catch (error) {
-        console.error(`Error fetching repo details: ${error.message}`);
+        if (error.response && error.response.status === 403) {
+            console.error(`Rate limit hit. Sleeping for 60 minutes.`);
+            await sleep(3600000); // Sleep for 60 minutes
+        } else {
+            console.error(`Error fetching repo details: ${error.message}`);
+        }
         return null;
     }
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 async function getCommitsCount(owner, repo, headers) {
@@ -89,7 +96,6 @@ async function getContributors(repoUrl) {
                 page++;
             } else {
                 console.error(`Failed to fetch contributors: ${response.status}`);
-                break;
             }
         } catch (error) {
             if (error.response) {
@@ -110,8 +116,7 @@ async function getContributors(repoUrl) {
     return contributors;
 }
 
-(async () => {
-    let repoUrl = process.argv[2];
+async function fetchContributors(repoUrl) {
     console.log('repoURL: ' + repoUrl);
 
     if (!isValidUrl(repoUrl)) {
@@ -153,7 +158,7 @@ async function getContributors(repoUrl) {
         const numContributors = contributors.length;
         console.log(`Contributors: ${numContributors}`);
         try {
-            await insertData(repoName, numContributors, repoDetails.stars, repoDetails.commits, repoDetails.createdAt);
+            await insertData(repoUrl, numContributors, repoDetails.stars, repoDetails.commits, repoDetails.createdAt);
         } catch (error) {
             console.error(`Error inserting/updating data: ${error.message}`);
         }
@@ -172,6 +177,23 @@ async function getContributors(repoUrl) {
             const contributionsLast30Days = await getContributionsLast30Days(user.login);
             if (contributionsLast30Days) {
                 console.log(`Contributions in the last 30 days for ${user.login}: ${contributionsLast30Days.total}`);
+                const userJson = contributionsLast30Days.rspjs2;
+
+                if (!userJson) {
+                    console.log(`Skipping user with github_link: ${contributionsLast30Days.profileLink} due to missing rspjs2.`);
+                    continue;
+                }
+    
+                console.log(`Processing repos for github_link: ${contributionsLast30Days.profileLink}`);
+    
+                // Ensure pushUserRepos is called
+                if (typeof pushUserRepos === 'function') {
+                    await pushUserRepos(userJson);
+                    console.log('pushUserRepos called');
+                } else {
+                    console.error('pushUserRepos is not defined or not a function');
+                }
+    
             } else {
                 console.error(`Failed to fetch contributions for ${user.login}`);
             }
@@ -180,4 +202,6 @@ async function getContributors(repoUrl) {
     } else {
         console.error("Failed to fetch repository details.");
     }
-})();
+}
+
+module.exports = { fetchContributors };
