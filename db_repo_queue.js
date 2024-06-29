@@ -1,9 +1,7 @@
 require('dotenv').config();
-const { createClient } = require('@supabase/supabase-js');
+const { supabaseClient } = require('./supabase_client.js');
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = supabaseClient;
 
 async function addRepoToQueue(repoData) {
     const { repo_url, stars, started_at, forks, fullDetails, ai_tag } = repoData;
