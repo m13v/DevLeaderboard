@@ -16,30 +16,33 @@ async function getRepoDetails(repoUrl) {
     const owner = repoParts[repoParts.length - 2];
     const repo = repoParts[repoParts.length - 1].replace('.git', '');
     const apiUrl = `https://api.github.com/repos/${owner}/${repo}`;
+    const retryDelay = 60 * 60 * 1000; // 60 minutes
 
     console.log(`Fetching repo details from: ${apiUrl}`); // Debug log
 
-    try {
-        const response = await axios.get(apiUrl, { headers });
-        console.log(`Response status: ${response.status}`); // Debug log
-        if (response.status === 200) {
-            return {
-                stars: response.data.stargazers_count,
-                commits: await getCommitsCount(owner, repo, headers),
-                createdAt: response.data.created_at // Ensure createdAt is included
-            };
-        } else {
-            console.error(`Failed to fetch repo details: ${response.status}`);
-            return null;
+    while (true) {
+        try {
+            const response = await axios.get(apiUrl, { headers });
+            console.log(`Response status: ${response.status}`); // Debug log
+            if (response.status === 200) {
+                return {
+                    stars: response.data.stargazers_count,
+                    commits: await getCommitsCount(owner, repo, headers),
+                    createdAt: response.data.created_at // Ensure createdAt is included
+                };
+            } else {
+                console.error(`Failed to fetch repo details: ${response.status}`);
+                return null;
+            }
+        } catch (error) {
+            if (error.response && error.response.status === 403) {
+                console.error(`Rate limit hit. Sleeping for 60 minutes...`);
+                await sleep(retryDelay); // Sleep for 60 minutes
+            } else {
+                console.error(`Error fetching repo details: ${error.message}`);
+                return null;
+            }
         }
-    } catch (error) {
-        if (error.response && error.response.status === 403) {
-            console.error(`Rate limit hit. Sleeping for 60 minutes.`);
-            await sleep(3600000); // Sleep for 60 minutes
-        } else {
-            console.error(`Error fetching repo details: ${error.message}`);
-        }
-        return null;
     }
 }
 
@@ -136,7 +139,7 @@ async function fetchContributors(repoUrl) {
     if (!repoDetails) {
         console.error("Failed to fetch repository details.");
         const orgUrl = `https://api.github.com/orgs/${repoParts[repoParts.length - 2]}/repos`;
-        const repos = await getTopRepoForOrg(orgUrl);
+        let repos = await getTopRepoForOrg(orgUrl);
         if (repos && repos.length > 0) {
             repoUrl = repos[0].html_url;
             console.log('getReposForOrg returned a new url: ' + repoUrl);
@@ -188,8 +191,8 @@ async function fetchContributors(repoUrl) {
     
                 // Ensure pushUserRepos is called
                 if (typeof pushUserRepos === 'function') {
+                    console.log('pushUserRepos being called');
                     await pushUserRepos(userJson);
-                    console.log('pushUserRepos called');
                 } else {
                     console.error('pushUserRepos is not defined or not a function');
                 }
