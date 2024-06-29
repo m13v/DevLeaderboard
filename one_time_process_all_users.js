@@ -30,14 +30,18 @@ async function fetchAndRetryIfNecessary(callAPIFn) {
 }
 
 async function processUsers() {
+    let offset = 0;
+    const limit = 50;
+
+    while (true) {
         try {
-            const users = await getLimitedUsers();
+            const users = await getLimitedUsers(limit, offset);
+            if (users.length === 0) break; // No more users to process
 
             for (const user of users) {
-                const username = extractUsernameFromGithubLink(user.github_link);
+                const username = extractUsernameFromGithubLink();
                 console.log('Requesting data for: ', username);
                 const commitUrls = await fetchAndRetryIfNecessary(() => getCommits(username));
-                // console.log('commitUrls: ', commitUrls);
                 const newCommitUrls = await filterNewCommits(commitUrls);
                 console.log('newCommitUrls: ', newCommitUrls);
 
@@ -45,9 +49,12 @@ async function processUsers() {
                     await insertData(newCommitUrls, username);
                 }
             }
+
+            offset += limit; // Move to the next chunk
         } catch (error) {
             console.error('Error processing users:', error);
         }
     }
+}
 
 processUsers();
