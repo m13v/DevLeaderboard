@@ -30,35 +30,43 @@ async function fetchAndRetryIfNecessary(callAPIFn) {
 }
 
 async function processUsers() {
+    let offset = 0;
+    const limit = 50;
+
     while (true) {
         try {
-            const users = await getLimitedUsers();
-            const now = new Date();
+            let users;
+            do {
+                console.log('Current offset: ' + offset);
+                users = await getLimitedUsers(limit, offset);
+                offset += limit;
 
-            for (const user of users) {
-                const lastCheck = user.last_queue_check ? new Date(user.last_queue_check) : null;
-                const timeDiff = lastCheck ? now - lastCheck : Infinity;
-                const hoursDiff = timeDiff / (1000 * 60 * 60);
+                const now = new Date();
 
-                if (!user.last_queue_check || hoursDiff > 24) {
-                    const username = extractUsernameFromGithubLink(user.github_link);
-                    console.log('Requesting data for: ', username);
-                    const commitUrls = await fetchAndRetryIfNecessary(() => getCommits(username));
-                    // console.log('commitUrls: ', commitUrls);
-                    const newCommitUrls = await filterNewCommits(commitUrls);
-                    console.log('newCommitUrls: ', newCommitUrls);
+                for (const user of users) {
+                    const lastCheck = user.last_queue_check ? new Date(user.last_queue_check) : null;
+                    const timeDiff = lastCheck ? now - lastCheck : Infinity;
+                    const hoursDiff = timeDiff / (1000 * 60 * 60);
 
-                    if (newCommitUrls.length > 0) {
-                        await insertData(newCommitUrls, username);
+                    if (!user.last_queue_check || hoursDiff > 24) {
+                        const username = extractUsernameFromGithubLink(user.github_link);
+                        console.log('Requesting data for: ', username);
+                        const commitUrls = await fetchAndRetryIfNecessary(() => getCommits(username));
+                        const newCommitUrls = await filterNewCommits(commitUrls);
+                        console.log('newCommitUrls: ', newCommitUrls);
+
+                        if (newCommitUrls.length > 0) {
+                            await insertData(newCommitUrls, username);
+                        }
                     }
                 }
-            }
+            } while (users.length === limit);
         } catch (error) {
             console.error('Error processing users:', error);
         }
 
-        console.log('Sleeping for 60 minutes...');
-        await sleep(60 * 60 * 1000); // Sleep for 60 minutes
+        console.log('Sleeping for 20 minutes...');
+        await sleep(20 * 60 * 1000); // Sleep for 20 minutes
     }
 }
 
