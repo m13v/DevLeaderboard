@@ -11,16 +11,16 @@ async function getCommits(username) {
     const eventsUrl = `https://api.github.com/users/${username}/events`;
     const headers = { Authorization: `token ${TOKEN}` };
     const { data: events } = await axios.get(eventsUrl, { headers });
-    const commits = [];
+    const commitShas = [];
     events.forEach(event => {
-        if (event.type === 'PushEvent') {
+        if (event.type === 'PushEvent' && event.actor.login === username) {
             event.payload.commits.forEach(commit => {
-                commits.push(commit.url);
+                commitShas.push(commit.url);
             });
         }
     });
 
-    return commits;
+    return commitShas;
 }
 
 module.exports = { getCommits };
