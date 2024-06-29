@@ -1,0 +1,25 @@
+{
+  "version": "3",
+  "redirects": {
+    "https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts": "https://esm.sh/@supabase/functions-js@2.4.1/src/edge-runtime.d.ts",
+    "https://esm.sh/@supabase/functions-js@2.4.1/src/edge-runtime.d.ts": "https://esm.sh/v135/@supabase/functions-js@2.4.1/src/edge-runtime.d.ts"
+  },
+  "remote": {
+    "https://deno.land/std@0.201.0/async/delay.ts": "a6142eb44cdd856b645086af2b811b1fcce08ec06bb7d50969e6a872ee9b8659",
+    "https://deno.land/std@0.201.0/http/server.ts": "1b2403b3c544c0624ad23e8ca4e05877e65380d9e0d75d04957432d65c3d5f41"
+  },
+  "workspace": {
+    "packageJson": {
+      "dependencies": [
+        "npm:@hono/node-server@^1.11.4",
+        "npm:@supabase/supabase-js@^2.43.5",
+        "npm:axios@^1.7.2",
+        "npm:dotenv@^16.4.5",
+        "npm:groq-sdk@^0.5.0",
+        "npm:hono@^4.4.9",
+        "npm:prisma@^5.16.0",
+        "npm:run-func@^3.0.0"
+      ]
+    }
+  }
+}

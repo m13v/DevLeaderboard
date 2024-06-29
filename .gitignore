@@ -104,10 +104,6 @@ venv.bak/
 # node
 node_modules/
 
-# db
-supabase/
-prisma/
-
 # api docs
 ai21studio-devhub/
 contribution-complexity/
