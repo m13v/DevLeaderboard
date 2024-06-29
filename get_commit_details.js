@@ -8,27 +8,23 @@ async function getCommitDetails(commitUrl) {
     }
 
     const headers = {
-        "Accept": "application/vnd.github.v3+json", // Updated to match curl request
+        "Accept": "application/vnd.github.v3+json",
         "Authorization": `Bearer ${token}`,
         "User-Agent": "axios/1.7.2"
     };
 
-    const maxRetries = 3;
-    const retryDelay = (retryCount) => Math.pow(2, retryCount) * 1000;
-    const timeout = 3600000; // 1 hour in milliseconds
+    const retryDelay = 20 * 60 * 1000; // 20 minutes
+    const timeout = 1200000; // 1 hour in milliseconds
 
-    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    while (true) {
         try {
             const response = await axios.get(commitUrl, { headers, timeout });
             return response.data;
         } catch (error) {
             if (error.response && error.response.status === 403) {
                 if (error.response.data.message.includes('API rate limit exceeded')) {
-                    console.warn('Rate limit exceeded. Sleeping for 60 minutes...');
-                    await new Promise(resolve => setTimeout(resolve, 60 * 60 * 1000)); // Sleep for 60 minutes
-                } else if (attempt < maxRetries) {
-                    console.warn(`Rate limit exceeded. Retrying in ${retryDelay(attempt)}ms...`);
-                    await new Promise(resolve => setTimeout(resolve, retryDelay(attempt)));
+                    console.warn('Rate limit exceeded. Sleeping for 20 minutes...');
+                    await new Promise(resolve => setTimeout(resolve, retryDelay)); // Sleep for 20 minutes
                 }
             } else {
                 if (error.response) {
@@ -43,13 +39,19 @@ async function getCommitDetails(commitUrl) {
                     console.error('Error message:', error.message);
                 }
                 if (error.response && error.response.status === 429) {
-                    return { error: 'rate_limit_exceeded', retryAfter: retryDelay(attempt) };
+                    return { error: 'rate_limit_exceeded', retryAfter: retryDelay };
+                }
+                if (error.response && error.response.status === 422) {
+                    console.error(`Error processing commit ${commitUrl}. Error: ${error.message}`);
+                    return 'DELETE_COMMIT'; // Return a specific value to indicate the commit should be deleted
+                } else {
+                    console.error(`Error processing commit ${commitUrl}:`, error);
+                    throw error; // Re-throw the error for other cases
                 }
                 break;
             }
         }
     }
-    throw new Error('Failed to fetch commit details after multiple attempts');
 }
 
 module.exports = { getCommitDetails };
