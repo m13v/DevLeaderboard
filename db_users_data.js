@@ -45,12 +45,12 @@ async function getUserByGithubLink(githubLink) {
     }
 }
 
-async function getLimitedUsers(limit = 50) {
+async function getLimitedUsers(limit = 50, offset = 0) {
     const { data, error } = await supabase
         .from('users')
         .select('*')
-        .order('id', { ascending: false }) // Order by id in descending order
-        .limit(limit);
+        .order('id', { ascending: false })
+        .range(offset, offset + limit - 1);
 
     if (error) {
         console.error('Error fetching data:', error);
