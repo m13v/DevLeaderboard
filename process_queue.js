@@ -25,6 +25,12 @@ async function processQueue() {
                     console.log(`Commit ${commit_url} doesn't exist in the completed_shas.`);
                     console.log('getCommitDetails for commit=', commit_url);
                     const commitData = await getCommitDetails(commit_url);
+
+                    if (commitData === 'DELETE_COMMIT') {
+                        await delete_commit_from_queue(commit_url);
+                        continue;
+                    }
+
                     const extracted_data = await extractAdditionsFromCommit(commitData);
                     // console.log('extracted_data', extracted_data);
 
@@ -52,11 +58,11 @@ async function processQueue() {
                         console.error(`Commit ${commit_url} not found. Deleting from queue.`);
                         await delete_commit_from_queue(commit_url);
                     } else if (error.response && error.response.status === 429) { // Assuming 429 is the rate limit status code
-                        console.error(`Rate limit hit. Sleeping for 60 minutes...`);
-                        await new Promise(resolve => setTimeout(resolve, 3600000)); // Sleep for 60 minutes
+                        console.error(`Rate limit hit. Sleeping for 20 minutes...`);
+                        await new Promise(resolve => setTimeout(resolve, 1200000)); // Sleep for 20 minutes
                     } else if (error.response && error.response.status === 403 && error.response.data.message.includes('API rate limit exceeded')) {
                         console.error(`API rate limit exceeded. Sleeping for 60 minutes...`);
-                        await new Promise(resolve => setTimeout(resolve, 3600000)); // Sleep for 60 minutes
+                        await new Promise(resolve => setTimeout(resolve, 1200000)); // Sleep for 20 minutes
                     } else {
                         console.error(`Error processing commit ${commit_url}. Error:`, error);
                     }
@@ -67,7 +73,7 @@ async function processQueue() {
 
         // Sleep for 60 minutes (3600000 milliseconds) before checking the queue again
         console.log('Queue is empty. Sleeping for 60 minutes...');
-        await new Promise(resolve => setTimeout(resolve, 3600000));
+        await new Promise(resolve => setTimeout(resolve, 1200000));
         queueContents = await get50QueueContents();
     }
 }
