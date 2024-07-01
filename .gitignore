@@ -87,6 +87,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+supabase/functions/.env.local
 
 # Spyder project settings
 .spyderproject
