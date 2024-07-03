@@ -1,10 +1,11 @@
 // @ts-nocheck
-// const { getCommits } = require('./get_commit_refs');
-// const { getCommitDetails } = require('./get_commit_details');
-// const { extractAdditionsFromCommit } = require('./extract_additions_from_commit');
+import { getCommits } from './get_commit_refs.ts';
+import { getCommitDetails } from './get_commit_details.ts';
+import { extractAdditionsFromCommit } from './extract_additions_from_commit.ts';
 import { getUserByGithubLink } from './db_users_data.ts'; // Import the function to check user existence
 import { getUserMetricsById, getFollowersPercentile, getContributionsPercentile, getSymbolsPercentile, getRankByWeightedAveragePercentile } from './db_user_metrics.ts'; // Import the functions to get user metrics
 import { getContributionsLast30Days } from './get_30day_user_contributions.ts'; // Import the function to get contributions
+import { moveCommitToCompleted } from './db_queue_mgt.ts';
 
 // function extractUsernameFromGithubLink(githubLink) {
 //     return githubLink.split('/').pop();
@@ -36,57 +37,63 @@ export async function processGithubProfile(input: string) {
             console.error("Failed to fetch contributions for the last 30 days.");
             return;
         }
-        return contributions
-    //     // Calculate percentiles
-    //     console.log("Calculating percentiles for followers: " + contributions.followers);
-    //     const followersPercentile = await getFollowersPercentile(contributions.followers);
-    //     console.log('followersPercentile:', followersPercentile);
+        // Calculate percentiles
+        console.log("Calculating percentiles for followers: " + contributions.followers);
+        const followersPercentile = await getFollowersPercentile(contributions.followers);
+        console.log('followersPercentile:', followersPercentile);
+        console.log("Calculating percentiles for contributions: " + contributions.commits);
+        const contributionsPercentile = await getContributionsPercentile(contributions.commits);
+        console.log('contributionsPercentile:', contributionsPercentile);
+        // Initialize totals
+        let total_additions = 0;
+        let total_symbol_count = 0;
+        let total_non_empty_lines = 0;
 
-    //     console.log("Calculating percentiles for contributions: " + contributions.commits);
-    //     const contributionsPercentile = await getContributionsPercentile(contributions.commits);
-    //     console.log('contributionsPercentile:', contributionsPercentile);
+        const commitUrls = await getCommits(username);
+        console.log(commitUrls);
+        for (const commitUrl of commitUrls) {
+            try {
+                const commitData = await getCommitDetails(commitUrl);
+                const additions_data = await extractAdditionsFromCommit(commitData);
 
-    //     // Initialize totals
-    //     let totalAdditions = 0;
-    //     let totalSymbolCount = 0;
-    //     let totalNonEmptyLines = 0;
+                total_additions += commitData.stats.additions;
+                total_symbol_count += extractedData.reduce((sum, file) => sum + file.symbol_count, 0);
+                total_non_empty_lines += extractedData.reduce((sum, file) => sum + file.non_empty_lines, 0);
+                console.log('totalNonEmptyLines=',total_non_empty_lines, ' total_symbol_count=',total_symbol_count, ' total_additions=', total_additions);
 
-    //     const commitUrls = await getCommits(username);
-    //     console.log(commitUrls);
-    //     for (const commitUrl of commitUrls) {
-    //         try {
-    //             const commitData = await getCommitDetails(commitUrl);
-    //             const extractedData = await extractAdditionsFromCommit(commitData);
+                await moveCommitToCompleted(commit_url, {
+                    ...commitData,
+                    additions_data,
+                    total_additions,
+                    total_symbol_count,
+                    total_non_empty_lines
+                });
 
-    //             totalAdditions += commitData.stats.additions;
-    //             totalSymbolCount += extractedData.reduce((sum, file) => sum + file.symbol_count, 0);
-    //             totalNonEmptyLines += extractedData.reduce((sum, file) => sum + file.non_empty_lines, 0);
-    //             console.log('totalNonEmptyLines=',totalNonEmptyLines, ' totalSymbolCount=',totalSymbolCount, ' totalAdditions=', totalAdditions);
-    //             console.log(`Processed commit: ${commitUrl}`);
-    //         } catch (commitError) {
-    //             console.error(`Error processing commit ${commitUrl}:`, commitError);
-    //         }
-    //     }
+                console.log(`Processed commit: ${commitUrl}`);
+            } catch (commitError) {
+                console.error(`Error processing commit ${commitUrl}:`, commitError);
+            }
+        }
 
-    //     // Calculate symbols percentile
-    //     const symbolsPercentile = await getSymbolsPercentile(totalSymbolCount);
-    //     console.log('symbolsPercentile=',symbolsPercentile);
+        // Calculate symbols percentile
+        const symbolsPercentile = await getSymbolsPercentile(total_symbol_count);
+        console.log('symbolsPercentile=',symbolsPercentile);
 
-    //     // Calculate weighted average
-    //     const weightedAveragePercentile = (0.1 * followersPercentile) + (0.1 * contributionsPercentile) + (0.8 * symbolsPercentile);
-    //     console.log('weightedAveragePercentile=' + weightedAveragePercentile);
-    //     // Get rank by weighted average percentile
-    //     const rank = await getRankByWeightedAveragePercentile(weightedAveragePercentile);
-    //     console.log(`User ${username} rank: ${rank}`);
+        // Calculate weighted average
+        const weightedAveragePercentile = (0.1 * followersPercentile) + (0.1 * contributionsPercentile) + (0.8 * symbolsPercentile);
+        console.log('weightedAveragePercentile=' + weightedAveragePercentile);
+        // Get rank by weighted average percentile
+        const rank = await getRankByWeightedAveragePercentile(weightedAveragePercentile);
+        console.log(`User ${username} rank: ${rank}`);
 
-    //     // Print data instead of inserting
-    //     console.log({
-    //         username,
-    //         total_additions: totalAdditions,
-    //         total_symbol_count: totalSymbolCount,
-    //         total_non_empty_lines: totalNonEmptyLines,
-    //         rank
-    //     });
+        // Return data instead of inserting
+        return {
+            username,
+            total_additions: total_additions,
+            total_symbol_count: total_symbol_count,
+            total_non_empty_lines: total_non_empty_lines,
+            rank
+        };
 
     } catch (error) {
         if (error.response && error.response.status === 403) {
@@ -95,7 +102,6 @@ export async function processGithubProfile(input: string) {
             console.error(`Error processing GitHub profile ${username}:`, error);
         }
     }
-    return { input, profile: 'mockProfileData' };
 }
 
 // module.exports = { processGithubProfile };
