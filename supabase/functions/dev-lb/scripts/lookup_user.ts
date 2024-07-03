@@ -51,17 +51,17 @@ export async function processGithubProfile(input: string) {
 
         const commitUrls = await getCommits(username);
         console.log(commitUrls);
-        for (const commitUrl of commitUrls) {
+        const commitPromises = commitUrls.map(async (commitUrl) => {
             try {
                 const commitData = await getCommitDetails(commitUrl);
                 const additions_data = await extractAdditionsFromCommit(commitData);
 
                 total_additions += commitData.stats.additions;
-                total_symbol_count += extractedData.reduce((sum, file) => sum + file.symbol_count, 0);
-                total_non_empty_lines += extractedData.reduce((sum, file) => sum + file.non_empty_lines, 0);
-                console.log('totalNonEmptyLines=',total_non_empty_lines, ' total_symbol_count=',total_symbol_count, ' total_additions=', total_additions);
+                total_symbol_count += additions_data.reduce((sum, file) => sum + file.symbol_count, 0);
+                total_non_empty_lines += additions_data.reduce((sum, file) => sum + file.non_empty_lines, 0);
+                console.log('totalNonEmptyLines=', total_non_empty_lines, ' total_symbol_count=', total_symbol_count, ' total_additions=', total_additions);
 
-                await moveCommitToCompleted(commit_url, {
+                await moveCommitToCompleted(commitUrl, {
                     ...commitData,
                     additions_data,
                     total_additions,
@@ -73,7 +73,9 @@ export async function processGithubProfile(input: string) {
             } catch (commitError) {
                 console.error(`Error processing commit ${commitUrl}:`, commitError);
             }
-        }
+        });
+
+        await Promise.all(commitPromises);
 
         // Calculate symbols percentile
         const symbolsPercentile = await getSymbolsPercentile(total_symbol_count);
