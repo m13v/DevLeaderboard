@@ -7,15 +7,14 @@ import { getUserMetricsById, getFollowersPercentile, getContributionsPercentile,
 import { getContributionsLast30Days } from './get_30day_user_contributions.ts'; // Import the function to get contributions
 import { moveCommitToCompleted } from './db_queue_mgt.ts';
 
-// function extractUsernameFromGithubLink(githubLink) {
-//     return githubLink.split('/').pop();
-// }
+function extractUsernameFromGithubLink(githubLink) {
+    return githubLink.split('/').pop();
+}
 
 export async function processGithubProfile(input: string) {
     if (!input) {
       throw new Error('input is required');
     }
-    // Mock implementation for demonstration
     const username = input.includes('github.com') ? extractUsernameFromGithubLink(input) : input;
     console.log('Processing data for:', username);
 
