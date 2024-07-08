@@ -43,7 +43,7 @@ export async function processGithubProfile(input: string) {
         console.log("Calculating percentiles for contributions: " + contributions.commits);
         const contributionsPercentile = await getContributionsPercentile(contributions.commits);
         console.log('contributionsPercentile:', contributionsPercentile);
-        // Initialize totals
+
         let total_additions = 0;
         let total_symbol_count = 0;
         let total_non_empty_lines = 0;
