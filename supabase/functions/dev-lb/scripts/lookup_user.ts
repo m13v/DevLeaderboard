@@ -30,6 +30,7 @@ export async function processGithubProfile(input: string) {
         //     console.log(`User ${username} does not exist.`);
         // }
         
+        
         // Get contributions for the last 30 days
         const contributions = await getContributionsLast30Days(username);
         if (!contributions) {
