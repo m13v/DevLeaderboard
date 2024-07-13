@@ -1,10 +1,6 @@
 Open Source Dev Leaderboard (Live update)
 
-Features:
-1. View the leaderboard
-2. Check leaderboard score for a user/repo 
-
-# Getting started:
+# Overview
 
 Right now it is quuite disintegrated repo, but there are a few scripts you can get started with.
 
@@ -24,6 +20,7 @@ Users on their end can:
 2. Check the score for themselves
 3. Get a leaderboard among people who follow them and who they follow
 
+# Getting started
 
 ## Backend - ongoing processes
 
