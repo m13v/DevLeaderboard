@@ -84,6 +84,10 @@ node process_queue.js;
 node db_stats.js
 ```
 
+It shoudl look like:
+![terminal_screenshot](./terminal_screenshot.png)
+
+
 ## Frontend
 
 Folder:
