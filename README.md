@@ -41,18 +41,20 @@ Create .env file with:
 touch .env
 ```
 
-To get GitHub token you should create it in your profile:
+To get GITHUB_TOKEN you should create it in your profile:
 1. got to: https://github.com/settings/tokens
 2. Tokens (classic)
 3. Generate new token (classic)
 4. Add ticks on fields: 'repo', 'user' (i thinks that's enough)
 5. Copy it to the command below
 
-To get GROQ API KEY:
+To get GROQ_API_KEY:
 1. Sign up here: https://groq.com/
 2. Navigate to: https://console.groq.com/keys
 3. Generate API key
 4. Insert below
+
+To get SUPABASE keys ask me i@m13v.com
 
 ```bash
 echo "GITHUB_TOKEN=insert_your_key_here" > .env
