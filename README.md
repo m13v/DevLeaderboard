@@ -1,4 +1,4 @@
-Open Source Dev Leaderboard (Live update)
+Open Source Software Engineer Leaderboard
 
 # Overview
 
