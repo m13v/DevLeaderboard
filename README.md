@@ -90,11 +90,32 @@ It shoudl look like:
 
 ## Frontend
 
-Folder:
-devleaderboard_app
+Navigate to folder:
+```bash
+cd devleaderboard_app
+```
+
+Navigate to the folder
+```bash
+cd DevLeaderboard
+```
+
+Create .env file with:
+```bash
+touch .env
+```
+
+Insert keys
+```bash
+echo NEXT_PUBLIC_SUPABASE_URL="SAME LINKS AS IN BACKEND" > .env
+echo NEXT_PUBLIC_SUPABASE_ANON_KEY="SAME LINKS AS IN BACKEND" > .env
+```
+
+
 
 Run locally:
 ```bash
 npm install
 npm run dev
 ```
+
