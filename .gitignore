@@ -107,3 +107,5 @@ node_modules/
 # api docs
 ai21studio-devhub/
 contribution-complexity/
+
+package-lock.json
