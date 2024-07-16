@@ -30,7 +30,6 @@ async function processCommits() {
                 let commitData2 = commits[i + 1].additions_data;
                 // console.log('commitData2:',commitData2);
 
-
                 // Store rank and summary fields in separate variables, assigning 0 if rank is null
                 let commitRank1 = commits[i].rank ?? 0;
                 let commitSummary1 = commits[i].summary;
