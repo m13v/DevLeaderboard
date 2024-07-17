@@ -24,7 +24,6 @@ async function processCommits() {
                 continue;
             }
 
-            
             for (let i = 0; i < commits.length - 1; i += 2) {
                 let commitData1 = commits[i].additions_data;
                 // console.log('commitData1:',commitData1);
