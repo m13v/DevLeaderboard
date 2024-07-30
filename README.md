@@ -54,7 +54,7 @@ To get GROQ_API_KEY:
 3. Generate API key
 4. Insert below
 
-To get SUPABASE keys ask me i@m13v.com
+To get SUPABASE keys ask me i@m13v.com X:@m13v_
 
 ```bash
 echo "GITHUB_TOKEN=insert_your_key_here" > .env
