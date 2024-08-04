@@ -1,10 +1,10 @@
-"use client"; // Ensure this line is present
+"use client"; // Enables client-side rendering for this component
 
-import { useEffect, useState } from 'react';
-import { fetchUsers } from '../lib/fetchUsers';
-import { fetchUserCommitStats } from '../lib/fetchUserCommitStats';
-import { fetchUserMetrics } from '../lib/fetchUserMetrics'; // Import the new method
-import { Table, TableHeader, TableRow, TableHead, TableCell, TableBody } from '../components/ui/table';
+import { useEffect, useState } from 'react'; // Hooks for side effects and state management
+import { fetchUsers } from '../lib/fetchUsers'; // Function to fetch user data
+import { fetchUserCommitStats } from '../lib/fetchUserCommitStats'; // Function to fetch user commit statistics
+import { fetchUserMetrics } from '../lib/fetchUserMetrics'; // Function to fetch user metrics (e.g., rank)
+import { Table, TableHeader, TableRow, TableHead, TableCell, TableBody } from '../components/ui/table'; // UI components for table structure
 
 export interface User {
   rank: number;
