@@ -6,6 +6,7 @@ import { fetchUserCommitStats } from '../lib/fetchUserCommitStats'; // Function 
 import { fetchUserMetrics } from '../lib/fetchUserMetrics'; // Function to fetch user metrics (e.g., rank)
 import { Table, TableHeader, TableRow, TableHead, TableCell, TableBody } from '../components/ui/table'; // UI components for table structure
 
+// Define the structure for a User object
 export interface User {
   rank: number;
   avatar: string;
@@ -21,6 +22,7 @@ export interface User {
   total_symbol_count: number;
 }
 
+// Define the structure for UserMetric object
 interface UserMetric {
   user_id: string;
   rank: number;
@@ -28,14 +30,17 @@ interface UserMetric {
 }
 
 const UsersTable = () => {
+  // State to store the list of users
   const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
     const getUsers = async () => {
-      const userMetrics = await fetchUserMetrics(); // Fetch the new data first
+      // Fetch user metrics, basic user data, and commit stats
+      const userMetrics = await fetchUserMetrics();
       const usersData: User[] = await fetchUsers();
       const commitStats = await fetchUserCommitStats();
 
+      // Log fetched data for debugging
       console.log('Fetched User Metrics:', userMetrics);
       console.log('Fetched Users:', usersData);
       console.log('Fetched Commit Stats:', commitStats);
